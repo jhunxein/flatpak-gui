@@ -1,3 +1,3 @@
-# Flathub UI
+# Flatpak UI
 
-A gui program for starting flathub installed application written in python 3.13.1 version of Tkinter.
+This is a personal project. Please be gentle. ^_^
