@@ -16,8 +16,7 @@ class App:
 
     HEIGHT = 300
     WIDTH = 400
-    HEIGHT = 600
-    WIDTH = 800
+    alt_press = False
 
     def __init__(self):
         self.rows = 0
@@ -32,18 +31,23 @@ class App:
         # use canva for scroll support
         self.canvas = Canvas(self.root)
         self.canvas.pack(side="left", fill="both", expand=True)
+
+        scrollbar_x = ttk.Scrollbar(
+            self.root, orient="horizontal", command=self.canvas.xview
+        )
+        scrollbar_x.pack(side="bottom", fill="x")
         scrollbar_y = ttk.Scrollbar(
             self.root, orient="vertical", command=self.canvas.yview
         )
-        scrollbar_y.pack(side="right", fill="both")
+        scrollbar_y.pack(side="right", fill="y")
         # use canva as the root of the frame
-        self.mainframe = ttk.Frame(
-            self.canvas, padding="3 3 3 3", width=self.WIDTH, height=self.HEIGHT
-        )
+        self.mainframe = ttk.Frame(self.canvas, width=self.WIDTH, height=self.HEIGHT)
         self.mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
         self.mainframe.grid_columnconfigure(0, weight=1)
         self.canvas.create_window((0, 0), window=self.mainframe, anchor="nw")
-        self.canvas.configure(yscrollcommand=scrollbar_y.set)
+        self.canvas.configure(
+            yscrollcommand=scrollbar_y.set, xscrollcommand=scrollbar_x.set
+        )
 
     def _update_idle(self):
         self.mainframe.update_idletasks()
@@ -52,14 +56,38 @@ class App:
         )
 
     def _on_mouse_up(self, _):
-        self.canvas.yview_scroll(-1, "units")
+        if self.alt_press:
+            self.canvas.xview_scroll(-1, "units")
+        else:
+            self.canvas.yview_scroll(-1, "units")
 
     def _on_mouse_down(self, _):
-        self.canvas.yview_scroll(1, "units")
+        if self.alt_press:
+            self.canvas.xview_scroll(1, "units")
+        else:
+            self.canvas.yview_scroll(1, "units")
+
+    def _on_alt_press(self, _):
+        self.alt_press = True
+
+    def _on_alt_release(self, _):
+        self.alt_press = False
+
+    def _on_resize(self, _):
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
 
     def _bind_events(self):
         self.canvas.bind_all("<Button-4>", self._on_mouse_up)
         self.canvas.bind_all("<Button-5>", self._on_mouse_down)
+        self.root.bind("<Alt_L>", self._on_alt_press)  # Left Alt key
+        self.root.bind("<Alt_R>", self._on_alt_press)  # Right Alt key
+        self.root.bind(
+            "<KeyRelease-Alt_L>", self._on_alt_release
+        )  # Release Left Alt key
+        self.root.bind(
+            "<KeyRelease-Alt_R>", self._on_alt_release
+        )  # Release Right Alt key
+        self.root.bind("<Configure>", self._on_resize)
 
     def _create_list(self):
         try:
@@ -72,7 +100,7 @@ class App:
                         app_id
                     ),
                 )
-                button.pack(pady=5, fill="x")
+                button.pack(pady=5, padx=5, fill="x")
             self._update_idle()
         except Exception as e:
             raise e
