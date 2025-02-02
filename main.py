@@ -17,6 +17,7 @@ class App:
     HEIGHT = 300
     WIDTH = 400
     alt_press = False
+    resize_timer = None
 
     def __init__(self):
         self.rows = 0
@@ -49,6 +50,15 @@ class App:
             yscrollcommand=scrollbar_y.set, xscrollcommand=scrollbar_x.set
         )
 
+    def _center_frame(self):
+        width = self.canvas.winfo_width()
+        height = self.canvas.winfo_height()
+        self.mainframe.place(
+            x=(width - self.mainframe.winfo_width()) // 2,
+            y=(height - self.mainframe.winfo_height()) // 2,
+        )
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
+
     def _update_idle(self):
         self.mainframe.update_idletasks()
         self.canvas.config(
@@ -74,7 +84,9 @@ class App:
         self.alt_press = False
 
     def _on_resize(self, _):
-        self.canvas.config(scrollregion=self.canvas.bbox("all"))
+        if self.resize_timer:
+            self.root.after_cancel(self.resize_timer)
+        self.resize_timer = self.root.after(100, self._center_frame)
 
     def _bind_events(self):
         self.canvas.bind_all("<Button-4>", self._on_mouse_up)
