@@ -47,17 +47,9 @@ class App:
         self.mainframe.grid_columnconfigure(0, weight=1)
         self.canvas.create_window((0, 0), window=self.mainframe, anchor="nw")
         self.canvas.configure(
-            yscrollcommand=scrollbar_y.set, xscrollcommand=scrollbar_x.set
+            yscrollcommand=scrollbar_y.set,
+            xscrollcommand=scrollbar_x.set,
         )
-
-    def _center_frame(self):
-        width = self.canvas.winfo_width()
-        height = self.canvas.winfo_height()
-        self.mainframe.place(
-            x=(width - self.mainframe.winfo_width()) // 2,
-            y=(height - self.mainframe.winfo_height()) // 2,
-        )
-        self.canvas.config(scrollregion=self.canvas.bbox("all"))
 
     def _update_idle(self):
         self.mainframe.update_idletasks()
@@ -83,11 +75,6 @@ class App:
     def _on_alt_release(self, _):
         self.alt_press = False
 
-    def _on_resize(self, _):
-        if self.resize_timer:
-            self.root.after_cancel(self.resize_timer)
-        self.resize_timer = self.root.after(100, self._center_frame)
-
     def _bind_events(self):
         self.canvas.bind_all("<Button-4>", self._on_mouse_up)
         self.canvas.bind_all("<Button-5>", self._on_mouse_down)
@@ -99,7 +86,6 @@ class App:
         self.root.bind(
             "<KeyRelease-Alt_R>", self._on_alt_release
         )  # Release Right Alt key
-        self.root.bind("<Configure>", self._on_resize)
 
     def _create_list(self):
         try:
