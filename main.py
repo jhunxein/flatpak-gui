@@ -14,8 +14,8 @@ class App:
         - scrollable
     """
 
-    MINHEIGHT = 500
-    MINWIDTH = 500
+    HEIGHT = 300
+    WIDTH = 400
     HEIGHT = 600
     WIDTH = 800
 
@@ -28,6 +28,7 @@ class App:
 
     def _configure(self):
         self.root.title("Hello")
+        self.root.geometry(f"{self.WIDTH}x{self.HEIGHT}")
         # use canva for scroll support
         self.canvas = Canvas(self.root)
         self.canvas.pack(side="left", fill="both", expand=True)
