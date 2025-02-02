@@ -1,4 +1,5 @@
 import subprocess
+from typing import Callable
 
 
 class Controller:
@@ -21,6 +22,7 @@ class Controller:
         apps.sort(key=lambda x: x["name"].lower())
         return apps
 
-    def launch_app(self, app_id):
+    def launch_app(self, app_id: str, destroy_fn: Callable):
         cmd = f"flatpak run {app_id} &"
         subprocess.run(["bash", "-c", cmd])
+        destroy_fn()

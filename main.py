@@ -109,7 +109,7 @@ class App:
                     self.mainframe,
                     text=f"{app['name']} - {app['version']}",
                     command=lambda app_id=app["app_id"]: self.controller.launch_app(
-                        app_id
+                        app_id, destroy_fn=self.root.destroy
                     ),
                 )
                 button.pack(pady=5, padx=5, fill="x")
