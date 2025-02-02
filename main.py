@@ -28,8 +28,11 @@ class App:
 
     def _configure(self):
         self.root.title("Hello")
-        self.mainframe = ttk.Frame(self.root, padding="3 3 3 3")
+        self.mainframe = ttk.Frame(
+            self.root, padding="3 3 3 3", width=self.WIDTH, height=self.HEIGHT
+        )
         self.mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
+        self.mainframe.grid_columnconfigure(0, weight=1)
         self.root.columnconfigure(0, weight=3, minsize=self.MINHEIGHT)
         self.root.rowconfigure(0, weight=1, minsize=self.MINWIDTH)
 
@@ -47,7 +50,7 @@ class App:
                     command=lambda app_id=app["app_id"]: self.controller.launch_app(
                         app_id
                     ),
-                ).grid(column=0, row=self.rows, sticky=W)
+                ).grid(column=0, row=self.rows, sticky=(W, E))
                 self.rows += 1
         except Exception as e:
             raise e
