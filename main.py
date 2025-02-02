@@ -1,4 +1,4 @@
-from tkinter import Tk, N, W, E, S
+from tkinter import Canvas, Tk, N, W, E, S
 from tkinter import ttk
 
 from controller import Controller
@@ -28,36 +28,53 @@ class App:
 
     def _configure(self):
         self.root.title("Hello")
+        # use canva for scroll support
+        self.canvas = Canvas(self.root)
+        self.canvas.pack(side="left", fill="both", expand=True)
+        scrollbar_y = ttk.Scrollbar(
+            self.root, orient="vertical", command=self.canvas.yview
+        )
+        scrollbar_y.pack(side="right", fill="both")
+        # use canva as the root of the frame
         self.mainframe = ttk.Frame(
-            self.root, padding="3 3 3 3", width=self.WIDTH, height=self.HEIGHT
+            self.canvas, padding="3 3 3 3", width=self.WIDTH, height=self.HEIGHT
         )
         self.mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
         self.mainframe.grid_columnconfigure(0, weight=1)
-        self.root.columnconfigure(0, weight=3, minsize=self.MINHEIGHT)
-        self.root.rowconfigure(0, weight=1, minsize=self.MINWIDTH)
+        self.canvas.create_window((0, 0), window=self.mainframe, anchor="nw")
+        self.canvas.configure(yscrollcommand=scrollbar_y.set)
+
+    def _update_idle(self):
+        self.mainframe.update_idletasks()
+        self.canvas.config(
+            scrollregion=self.canvas.bbox("all"),
+        )
+
+    def _on_mouse_up(self, _):
+        self.canvas.yview_scroll(-1, "units")
+
+    def _on_mouse_down(self, _):
+        self.canvas.yview_scroll(1, "units")
 
     def _bind_events(self):
-        pass
+        self.canvas.bind_all("<Button-4>", self._on_mouse_up)
+        self.canvas.bind_all("<Button-5>", self._on_mouse_down)
 
     def _create_list(self):
         try:
             self.apps = self.controller.get_installed_apps()
             for app in self.apps:
-                ttk.Button(
+                button = ttk.Button(
                     self.mainframe,
-                    width=50,
                     text=f"{app['name']} - {app['version']}",
                     command=lambda app_id=app["app_id"]: self.controller.launch_app(
                         app_id
                     ),
-                ).grid(column=0, row=self.rows, sticky=(W, E))
-                self.rows += 1
+                )
+                button.pack(pady=5, fill="x")
+            self._update_idle()
         except Exception as e:
             raise e
-
-    def _add_padding(self):
-        for child in self.mainframe.winfo_children():
-            child.grid_configure(padx=5, pady=5)
 
     def _run_selected_app(self):
         try:
@@ -69,8 +86,7 @@ class App:
     def _start(self):
         self._configure()
         self._create_list()
-        self._add_padding()
-        # self._bind_events()
+        self._bind_events()
         self.root.mainloop()
 
 
